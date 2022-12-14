@@ -1,28 +1,41 @@
 <!DOCTYPE HTML>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UNC Bootcamp Code Quiz</title>
-    <link rel="stylesheet" href="Assets/css/style.css" />
+    <link rel="stylesheet" href="./assets/style.css" />
+    <title>Brandon's Javascript Quiz</title>
 </head>
-<body>
-    <header>
-        <!--Link to view high scores stored in LocalStorage-->
-        <h1><a href="#" id="highscore_link">View Highscores</a></h1>
-        <!--Display game clock to user-->
-        <h1>Time: <span id="timer"></span></h1>
+<section>
+    <header class="leaderboard">
+        <a>View Leaderboard</a>
     </header>
-    <main>
-        <h2 id="content_header">Test</h2>
-        <div id="content">
-            <!--This is where the initial greeting, questions and answers go-->
+    <p class="leaderboard">Highest Scores
+    <div id="leaderboardList">
+
+    </div>
+    </p>
+</section>
+
+<body>
+    <section>
+        <h1 class="headertext">Hello and Welcome to this Javascript Quiz! It is timed for 1 minute, but be careful because clicking the wrong answer will remove time from the timer( 10 seconds )</h1>
+        <h3>When you are ready, select the Begin Button Below!</h3>
+        <h2 id="timer"></h2>
+        <div>
+            <button id="begin">Begin</button>
         </div>
-        <div id="button">
-            <!--Generate buttons to use here-->
+    </section>
+    <section>
+        <h1 id="questions"></h1>
+        <div>
+            <button class="jsQuestions" id="optionOne"></button>
+            <button class="jsQuestions" id="optionTwo"></button>
+            <button class="jsQuestions" id="optionThree"></button>
+            <button class="jsQuestions" id="optionFour"></button>
         </div>
-        <div id="answerResult" style="display:none"> 
-            <!--Display if answer is right/wrong here-->
-        </div>
-    </main>
+    </section>
+    <p class="addHighScores">If you want to save your score, enter your name<input type="text" id="username"><button id="addScoretoLB">Enter Highscore</button></p>
+    <script src="./assets/script.js"></script>
 </body>
-<script src="Assets/js/script.js"></script>
 </html>

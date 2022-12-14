@@ -1,16 +1,30 @@
-// get elements in template HTML to build off of
-var contentHeader = document.getElementById("content_header");
-var content = document.getElementById("content");
-var buttonDiv = document.getElementById("button");
-var answerResult = document.getElementById("answerResult");
-var timerDisplay = document.getElementById("timer");
+//Gets all of the query selectors set up for the document
+var begin = document.getElementById("begin");
+var questions = document.getElementById("questions");
+var jsQuestions = document.querySelectorAll(".jsQuestions")
+var timer = document.getElementById("timer");
+var username = document.getElementById("username");
+var addScoretoLB = document.getElementById("addScoretoLB");
+var leaderboard = document.getElementById("leaderboard");
+var leaderboardList = document.getElementById("leaderboardList");
+// Initializing the timer for 60 seconds
+var timeLeft = 60
 
-// set variables to regulate gameplay across functions
-var qNumber;
-var gameClock;
-var gameTimer;
+function startTimer() {
+    displayQuestions();
+    var timer = setInterval(function () {
+        timeLeft--;
+        timer.innerHTML = timeLeft + " seconds remaining";
+        // Checks to see if the timer has any time remaining, if there is none, gives the alert that time is up and resets the timer incase they want to try again
+        if (timeLeft === 0) {
+            clearInterval(timer);
+            alert("Times up!");
+        }
+        // Sets the timer function to run every 1000ms, or 1 second
+    }, 1000);
 
-// Store questions in an array of objects
+};
+// Bank with all the questions and the correct answers
 var questionsAnswers = [
     {
         question: 'Commonly used data types DO NOT include:',
@@ -38,244 +52,35 @@ var questionsAnswers = [
         correct: 3
     }
 ];
-
-/************* Display initial content for page ***********/
-
-displayStart();
-
-/************* Functions ************* */
-
-// display welcome page 
-function displayStart() {
-    gameClock = 75;
-    qNumber = 0;
-
-    // insert content onto page
-    contentHeader.innerHTML = "Coding Quiz Challenge";
-    content.innerHTML = "Try to answer the following code-related questions within the time limit. Keep in mind that incorrect answers will penalize your score/times by ten seconds!";
-    timerDisplay.innerHTML = gameClock;
-
-    // create start button
-    var startButton = document.createElement("button");
-    startButton.innerHTML = "Start the quiz!";
-    buttonDiv.appendChild(startButton);
-  
-    // start game when start button clicked
-    startButton.addEventListener("click",function() {
-        // start clock
-        startClock();
-        // display questions
-        displayQuestions(questionsAnswers);
-        // remove button
-        startButton.remove();
-    });
-
-    // if user wants to see high scores, display that page
-    var highscoreLink = document.getElementById("highscore_link");
-    highscoreLink.addEventListener("click",displayScores);
-}
-
-// start game clock
-function startClock() {
-    // set timer using global variable x, so I can access from gameOver()
-    gameTimer = setInterval(function() {
-        gameClock--;
-        // end game if it times out, otherwise continue to play
-        if (gameClock === 0) {
-            timerDisplay.innerHTML = 0;
-            gameOver();
-            clearInterval(gameTimer);
-        }
-        else {
-            timerDisplay.innerHTML = gameClock;
-        }
-    },1000);
-}
-
-// display questions, accepts questionsAnswers array so that different question/answer banks can be used
-function displayQuestions(questionsAnswers) {
-    // dump current question into var for readability/my sanity
-    var currentQ = questionsAnswers[qNumber];
-    var list = document.createElement("ul");
-
-    // reset content box, then build list of answers
-    contentHeader.innerHTML = currentQ.question;
-    content.innerHTML = '';
-
-    for (i = 0; i < currentQ.answers.length; i++) {
-        var listItem = document.createElement("li");
-
-        // if creating correct answer LI, then add data to tag in HTML
-        if (i === currentQ.correct) {
-            listItem.setAttribute("data-correct","true");
-        }
-        else {
-            listItem.setAttribute("data-correct","false");
-        }
-        listItem.setAttribute("id","list#"+i);
-        listItem.style.cursor = "pointer";
-
-        listItem.innerText = (i+1) + ". " + currentQ.answers[i];
-        content.appendChild(list);
-        list.appendChild(listItem);
-
-        // if list item is clicked, check answer and display message correct vs. wrong at bottom
-        document.getElementById("list#"+i).addEventListener("click",function() {
-            if (this.getAttribute("data-correct") === "true") {
-                // display right/wrong message in hidden div, make visible
-                answerResult.setAttribute("style","display:all");
-                answerResult.innerHTML = "Correct!";
-            }
-            else {
-                // display right/wrong message in hidden div, make visible
-                answerResult.setAttribute("style","display:all");
-                answerResult.innerHTML = "Incorrect!";
-                // prevent a negative gameClock
-                if (gameClock >= 11) {
-                    // subtract 10 seconds
-                    gameClock -= 10;
-                }
-            }
-
-            // end game if on the last question
-            if (qNumber < (questionsAnswers.length - 1)) { 
-                qNumber++;
-                return displayQuestions(questionsAnswers);
-            }
-            else {
-                gameOver();
-            }
-        });
+// Keeps track of what question you are on
+var questionCounter = 0;
+function displayQuestions() {
+    // Adds the question from the question counter
+    questions.innerHTML = questions[questionCounter].question;
+    // Hides the begin button when the questions start displaying
+    begin.setAttribute("style", "display: none")
+    // Loops through the array of questions until the final question is reached
+    for (var i = 0; i < questions.length; i++) {
+        console.log(questions[questionCounter].choices[i]);
+        jsQuestions.textContent = questions[0].choices;
     }
 }
-
-// handle end of game page/highscore input
-function gameOver() {
-    timerDisplay.innerHTML = gameClock;
-    clearInterval(gameTimer);
-    gameOver = 0;
-
-    contentHeader.innerHTML = "All done!";
-    content.innerHTML ='Your final score is: ' + gameClock + '<br>Enter initials: ';
-
-    // create input box to store initials
-    var nameBox = document.createElement("input");
-    nameBox.setAttribute("type","text");
-    nameBox.setAttribute("style","margin-top: 15px;");
-    nameBox.addEventListener("focus",function() {
-        answerResult.remove();
-        nameBox.setAttribute("style","background: lightgray;");
-    });
-    nameBox.addEventListener("blur",function() {
-        nameBox.setAttribute("style","background: white;");
-    });
-    content.appendChild(nameBox);
-
-    // create new button for this specific task
-    var newButton = document.createElement("button");
-    newButton.innerHTML = "Save initials";
-    newButton.setAttribute("style","margin-left: 5px;");
-    content.appendChild(newButton);
-    
-    // when user saves 
-    newButton.addEventListener("click",function() {
-        if (!nameBox.value) {
-            alert("Please input your initials!");
-        }
-        else {
-            // add score to local storage
-            addScore(nameBox.value,gameClock);
-            // show user list of high scores saved
-            displayScores();
-        }
-    });
-}
-
-// add username and score to localstorage
-function addScore(name,score) {
-    // create object for new score that was passed to function
-    newScore =
-    {
-        name: name,
-        score: score
-    };
-
-    // if no existing scores in localstorage...then add it, otherwise
-    if (!localStorage.getItem("codeQuizScores")) {
-        // push newScore object into array, then
-        var newScoreArray = [];    
-        newScoreArray.push(newScore);
-        // write it to local storage
-        localStorage.setItem("codeQuizScores",JSON.stringify(newScoreArray));
-    }
+// Adds high scores the the leaderboards based on their username or initials
+var item = document.getElementById("username").value;
+var userInput = [];
+function saveName() {
+    if (item === "") {
+        alert("Please enter your Name to save your score")
+    } 
     else {
-        // place existing scores in oldScoreArray
-        var oldScoreArray = JSON.parse(localStorage.getItem("codeQuizScores"));
-        // push newScore object into oldScoreArray
-        oldScoreArray.push(newScore);
-        // write updated scores to localStorage
-        localStorage.setItem("codeQuizScores",JSON.stringify(oldScoreArray));
+        alert("Score saved")
+        localStorage.setItem("username", item.value);
     }
 }
 
-// display high scores
-function displayScores() {
-    // stop countdown if called by clicking link during gameplay
-    clearInterval(gameTimer);
-    timerDisplay.innerHTML = "75";
-
-    // reset page contents
-    contentHeader.innerHTML = "Here are the high scores: ";
-    content.innerHTML = ""; // reset innerHTML
-    buttonDiv.innerHTML = "";
-    
-    // default message if no scores in localstorage
-    if (!localStorage.getItem("codeQuizScores")) {
-        content.innerHTML = "No scores yet! Play the game!";
-    }
-    // otherwise, pull scores from localstorage and display them in list
-    else {
-        // use same variable name as in addScore for readability
-        var oldScoreArray = JSON.parse(localStorage.getItem("codeQuizScores"));
-
-        // sort scores from highest to lowest
-        oldScoreArray.sort(function(a,b) {
-            return b.score - a.score;
-        });
-
-        // get all of the old scores, display in list
-        var scoreList = document.createElement("ul");
-        for (i = 0; i < oldScoreArray.length; i++) {
-            var scoreItem = document.createElement("li");
-            scoreItem.innerHTML = (i+1) + ". " + oldScoreArray[i].name + " - " + oldScoreArray[i].score;
-            scoreItem.setAttribute("id","score"+i);
-            scoreList.appendChild(scoreItem);
-            content.appendChild(scoreList);
-        }
-    }
-    // display buttons to clear scores or go back to start of quiz
-    var goBackBtn = document.createElement("button");
-    goBackBtn.innerHTML = "Go back";
-    goBackBtn.setAttribute("style","margin-right: 5px;");
-    button.appendChild(goBackBtn);
-
-    var clearScoresBtn = document.createElement("button");
-    clearScoresBtn.innerHTML = "Clear High Scores";
-    button.appendChild(clearScoresBtn);
-
-    // add event listeners to these buttons, handle accordingly
-    var qNumber = 0;
-    var gameClock = 75;  
-
-    goBackBtn.addEventListener("click", function() { 
-        // reload the page, starting over
-        location.reload();
-    });
-
-    clearScoresBtn.addEventListener("click", function() {
-        localStorage.removeItem("codeQuizScores");
-        contentHeader.innerHTML = "Here are the high scores: ";
-        content.innerHTML = "Cleared high scores. Now go play again!";
-        return displayScores;
-    });
-}
+// Starts the saveName Function to check if the user inputted a name,
+// If they did, shows the leaderboards
+addScoretoLB.addEventListener("click", saveName);
+leaderboard.addEventListener("click", function() {
+    leaderboardList.setAttribute("style", "display: block");
+});
